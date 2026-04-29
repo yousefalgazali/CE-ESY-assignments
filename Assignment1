@@ -1,1 +1,90 @@
+#include <stdio.h>
+#include <string.h>
 
+#define bsize 50
+
+typedef struct {
+    char data[bsize];
+    int head;
+    int tail;
+    int count;
+} Cbuff;
+
+
+void initBuffer(Cbuff *cb) {
+    cb->head = 0;
+    cb->tail = 0;
+    cb->count = 0;
+}
+
+
+void writeBuffer(Cbuff *cb, char value) {
+    if (cb->count == bsize) {
+        printf("\n Buffer is full! Cannot write '%c'\n", value);
+        return;   
+    }
+
+    cb->data[cb->head] = value;
+    cb->head = (cb->head + 1) % bsize;
+    cb->count++;
+
+    printf("Written '%c' -> head=%d tail=%d count=%d\n",
+           value, cb->head, cb->tail, cb->count);
+}
+
+
+char readBuffer(Cbuff *cb) {
+    if (cb->count == 0) {
+        printf("\n Buffer is empty!\n");
+        return '\0';
+    }
+
+    char value = cb->data[cb->tail];
+    cb->tail = (cb->tail + 1) % bsize;
+    cb->count--;
+
+    printf("Read '%c' -> head=%d tail=%d count=%d\n",
+           value, cb->head, cb->tail, cb->count);
+
+    return value;
+}
+
+int main() {
+    Cbuff cb;
+    initBuffer(&cb);
+
+    char name[50];
+    char finalString[60];
+
+   
+    printf("Enter your name: ");
+    fgets(name, sizeof(name), stdin);
+
+    
+    name[strcspn(name, "\n")] = 0;
+
+    
+    snprintf(finalString, sizeof(finalString), "%s CE-ESY", name);
+
+
+    for (int i = 0; i < strlen(finalString); i++) {
+        writeBuffer(&cb, finalString[i]);
+    }
+
+
+
+    while (cb.count > 0) {
+        char ch = readBuffer(&cb);
+        if (ch != '\0') {
+            printf("%c", ch);
+        }
+    }
+
+
+    printf("\n");
+    if (cb.count == 0) {
+        printf("Buffer is now completely empty.\n");
+    }
+
+    return 0;
+}
